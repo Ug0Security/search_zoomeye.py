@@ -5,8 +5,8 @@ import requests
 import argparse
 
 ######## CHANGE THESE  (Or use `--email` and `--password` arguments) #########
-USER_EMAIL = "USER_EMAIL"
-USER_PASSWORD = "USER_PASSWORD"
+USER_EMAIL = ""
+USER_PASSWORD = ""
 ##############################################################################
 
 parser = argparse.ArgumentParser(description='Simple ZoomEye searcher, outputs IPs to stdout or file')
@@ -17,12 +17,14 @@ parser.add_argument("--email", help="Your ZoomEye email", default=USER_EMAIL)
 parser.add_argument("--password", help="Your ZoomEye password", default=USER_PASSWORD)
 parser.add_argument("-s", "--save", help="Save output to results.txt", action="store_true")
 parser.add_argument("-pl", "--platform", help="Platforms to search, accepts \"host\" and \"web\" (Default: host)", default="host")
+parser.add_argument("-f", "--outputformat", help="output format (ip,port,url)", default="ip")
 args = parser.parse_args()
 
 QUERY = args.search
 PAGECOUNT = args.pages
 EMAIL = args.email
 PASSWORD = args.password
+output_format = args.outputformat
 
 SEARCH_TYPE = args.platform
 
@@ -72,10 +74,19 @@ def getResult():
     try:
       while i < len(response["matches"]):
         if SEARCH_TYPE == "host":
-          print(str(response["matches"][i]["ip"]))
-          # Print ip:port
-          #print(str(response["matches"][i]["ip"]) + ":" + str(response["matches"][i]["portinfo"]["port"]))
-          
+          if output_format == "ip":    
+              print(str(response["matches"][i]["ip"]))
+          if output_format == "port":
+              print(str(response["matches"][i]["ip"]) + ":" + str(response["matches"][i]["portinfo"]["port"]))
+          if output_format == "url":
+              try:
+                  if not "SSL" in str(response["matches"][i]["portinfo"]["banner"]):
+                      print("http://" + str(response["matches"][i]["ip"]) + ":" + str(response["matches"][i]["portinfo"]["port"]))
+                  else : 
+                      print("https://" + str(response["matches"][i]["ip"]) + ":" + str(response["matches"][i]["portinfo"]["port"]))
+              except: 
+                  pass
+
           if args.save:
             resultsFile.write(response["matches"][i]["ip"] + "\n")
         if SEARCH_TYPE == "web":
