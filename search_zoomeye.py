@@ -18,6 +18,7 @@ parser.add_argument("--password", help="Your ZoomEye password", default=USER_PAS
 parser.add_argument("-s", "--save", help="Save output to results.txt", action="store_true")
 parser.add_argument("-pl", "--platform", help="Platforms to search, accepts \"host\" and \"web\" (Default: host)", default="host")
 parser.add_argument("-f", "--outputformat", help="output format (ip,port,url)", default="ip")
+parser.add_argument("-o", "--offset", help="search offset", default="1")
 args = parser.parse_args()
 
 QUERY = args.search
@@ -25,6 +26,7 @@ PAGECOUNT = args.pages
 EMAIL = args.email
 PASSWORD = args.password
 output_format = args.outputformat
+offset = args.offset
 
 SEARCH_TYPE = args.platform
 
@@ -62,7 +64,8 @@ def getResult():
   # Add the prefixed token to the headers
   HEADERS = {"Authorization": TOKEN}
   
-  currentPage = 1
+  currentPage = int(offset)
+  
   while currentPage <= PAGECOUNT:
     if args.save:
       print("\nPage " + str(currentPage))
